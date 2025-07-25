@@ -1,8 +1,10 @@
+import functools
+
 import uproot
 import awkward as ak
 import numpy as np
 
-from tqdm import tqdm
+from tqdm.contrib.concurrent import process_map
 
 from diquark.config.constants import DATA_KEYS
 
@@ -45,14 +47,19 @@ class DataLoader:
         print(f"Fraction of events passing mass cut: {(masses >= mass).sum() / len(masses):.2f}")
         return arr[(masses > mass).flatten()]
 
+    def _load_dataset(self, key, mass_cut: float = None):
+        arr = self.read_jet_delphes(self.path_dict[key])
+        if key.startswith("SIG") and mass_cut is not None:
+            arr = self.lower_cut_suu_mass(arr, mass_cut)
+        return key, arr
+
     def load_data(self, mass_cut: float = None) -> dict[str, ak.Array]:
         """Load all datasets specified in DATA_KEYS."""
-        self.datasets = {}
-        for key in tqdm(DATA_KEYS, desc="Loading data"):
-            arr = self.read_jet_delphes(self.path_dict[key])
-            if key.startswith("SIG") and mass_cut is not None:
-                arr = self.lower_cut_suu_mass(arr, mass_cut)
-            self.datasets[key] = arr
+
+        load_dataset = functools.partial(self._load_dataset, mass_cut=mass_cut)
+        datasets = process_map(load_dataset, DATA_KEYS, max_workers=32, desc="Loading data")
+
+        self.datasets = dict(datasets)
         return self.datasets
 
 

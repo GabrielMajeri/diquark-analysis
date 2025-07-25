@@ -10,25 +10,25 @@ from sklearn.metrics import roc_curve, precision_recall_curve
 def plot_results(results: dict[str, Any], df_test: pd.DataFrame, plot_types: list[str], real_percentiles) -> dict[str, go.Figure]:
     """
     Create various plots based on model results.
-    
+
     Args:
         results: Dictionary containing model results (metrics, predictions, etc.).
         df_test: Test dataset as a pandas DataFrame.
         plot_types: List of plot types to generate.
-    
+
     Returns:
         Dictionary of plotly figures.
     """
     plots = {}
-    
+
     if 'roc_curve' in plot_types:
         fpr, tpr, _ = roc_curve(df_test['target'], results['predictions'])
         plots['roc_curve'] = plot_roc_curve(fpr, tpr, results['metrics']['roc_auc'])
-    
+
     if 'pr_curve' in plot_types:
         precision, recall, _ = precision_recall_curve(df_test['target'], results['predictions'])
         plots['pr_curve'] = plot_precision_recall_curve(recall, precision, results['metrics']['average_precision'])
-    
+
     if 'weighted_pr_curve' in plot_types:
         plots['weighted_pr_curve'] = plot_weighted_precision_recall_curve(
             results['metrics']['weighted_recall'],
@@ -40,10 +40,10 @@ def plot_results(results: dict[str, Any], df_test: pd.DataFrame, plot_types: lis
 
     if 'feature_importances' in plot_types and 'feature_importances' in results:
         plots['feature_importances'] = plot_feature_importances(df_test.columns[:-2], results['feature_importances'])
-    
+
     if 'sig_bkg_metrics' in plot_types and 'sig_bkg_metrics' in results:
         plots['sig_bkg_metrics'] = plot_signal_background_metrics(results['sig_bkg_metrics'], real_percentiles)
-    
+
     return plots
 
 def plot_roc_curve(fpr: np.ndarray, tpr: np.ndarray, roc_auc: float) -> go.Figure:
@@ -69,13 +69,13 @@ def plot_precision_recall_curve(recall: np.ndarray, precision: np.ndarray, avera
     )
     return fig
 
-def plot_weighted_precision_recall_curve(recall: np.ndarray, precision: np.ndarray, 
-                                         thresholds: np.ndarray, pr_auc: float, 
+def plot_weighted_precision_recall_curve(recall: np.ndarray, precision: np.ndarray,
+                                         thresholds: np.ndarray, pr_auc: float,
                                          use_real_event_percentiles: bool) -> go.Figure:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=recall, y=precision, 
-        mode='lines', 
+        x=recall, y=precision,
+        mode='lines',
         name=f'Weighted PR curve (AUC = {pr_auc:.3f})',
         text=[f'Threshold: {t:.3f}' for t in thresholds],
         hoverinfo='text+x+y'

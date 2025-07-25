@@ -1,1 +1,1 @@
-poetry run python diquark/analysis.py -c diquark/config/ATLAS_136_70_6j_5f.yaml
+python3 diquark/analysis.py -c diquark/config/ATLAS_136_80_6j_5f.yaml
