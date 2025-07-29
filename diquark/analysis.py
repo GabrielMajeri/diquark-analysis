@@ -47,29 +47,6 @@ class Analysis:
             'gradient_boosting': GradientBoostingModel(self.config.get('models.gradient_boosting', {})) if self.config.get('models.gradient_boosting', None) else None
         }
 
-    # def run(self):
-    #     self.logger.info("Starting analysis...")
-
-    #     # Load data
-    #     data = self.load_data()
-
-    #     # Extract features
-    #     features = self.extract_features(data)
-
-    #     # Preprocess data
-    #     X_train, X_test, y_train, y_test, df_train, df_test = self.preprocess_data(features)
-
-    #     # Train and evaluate models
-    #     results = self.train_and_evaluate_models(X_train, X_test, y_train, y_test, df_test)
-
-    #     # Visualize results
-    #     self.visualize_results(results, df_test)
-
-    #     # Save results
-    #     self.save_results(results, df_test)
-
-    #     self.logger.info("Analysis completed.")
-
     def run(self):
         self.logger.info("Starting analysis...")
 

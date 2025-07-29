@@ -4,7 +4,7 @@ import uproot
 import awkward as ak
 import numpy as np
 
-from tqdm.contrib.concurrent import process_map
+from tqdm.contrib.concurrent import thread_map
 
 from diquark.config.constants import DATA_KEYS
 
@@ -49,17 +49,27 @@ class DataLoader:
 
     def _load_dataset(self, key, mass_cut: float = None):
         arr = self.read_jet_delphes(self.path_dict[key])
+
         if key.startswith("SIG") and mass_cut is not None:
             arr = self.lower_cut_suu_mass(arr, mass_cut)
+
+        # Filter out events with no jets in the final state
+        arr = arr[arr.Jet != 0]
+
         return key, arr
 
     def load_data(self, mass_cut: float = None) -> dict[str, ak.Array]:
         """Load all datasets specified in DATA_KEYS."""
 
+        # Load the datasets in parallel
         load_dataset = functools.partial(self._load_dataset, mass_cut=mass_cut)
-        datasets = process_map(load_dataset, DATA_KEYS, max_workers=32, desc="Loading data")
+        datasets = thread_map(load_dataset, DATA_KEYS, max_workers=32, desc="Loading data")
+
+        # Drop empty datasets
+        datasets = list(filter(lambda pair: len(pair[1]) != 0, datasets))
 
         self.datasets = dict(datasets)
+
         return self.datasets
 
 
