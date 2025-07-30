@@ -1,4 +1,4 @@
-from tqdm.contrib.concurrent import process_map
+from tqdm.contrib.concurrent import thread_map
 import argparse
 
 import numpy as np
@@ -113,7 +113,7 @@ class Analysis:
     def extract_features(self, data):
         self.logger.info("Extracting features...")
 
-        features = process_map(
+        features = thread_map(
             self.feature_extractor.compute_all,
             data.values(),
             max_workers=32,

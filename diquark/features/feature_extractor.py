@@ -1,3 +1,4 @@
+from math import comb
 import numpy as np
 import awkward as ak
 from itertools import combinations
@@ -14,13 +15,16 @@ class FeatureExtractor:
             *[f"leading_jet_eta_{i+1}" for i in range(self.n_jets)],
             *[f"leading_jet_phi_{i+1}" for i in range(self.n_jets)],
             *[f"delta_r_{i+1}_{j+1}" for i in range(self.n_jets) for j in range(i+1, self.n_jets)],
-            "combined_invariant_mass",
+            # Don't include this in feature names list,
+            # since it's dropped before doing cross-validation.
+            #"combined_invariant_mass",
         ]
-        
+
         for k in [2, 3]:
-            basic_features.extend([f"{k}jet_invariant_mass_{i+1}" for i in range(self.n_jets)])
-            basic_features.extend([f"{k}jet_vector_sum_pt_{i+1}" for i in range(self.n_jets)])
-        
+            n_choose_k = comb(self.n_jets, k)
+            basic_features.extend([f"{k}jet_invariant_mass_{i+1}" for i in range(n_choose_k)])
+            # basic_features.extend([f"{k}jet_vector_sum_pt_{i+1}" for i in range(n_choose_k)])
+
         combined_features = [
             "m3j_m6j_ratio",
             "m2j_m6j_ratio",
@@ -29,7 +33,7 @@ class FeatureExtractor:
             "smallest_delta_r_mass",
             "max_vector_sum_pt",
         ]
-        
+
         return basic_features + combined_features
 
     def _leading_jet_array(self, data: ak.Array, key: str) -> np.ndarray:
@@ -48,11 +52,7 @@ class FeatureExtractor:
     def leading_jet_phi(self, data: ak.Array) -> np.ndarray:
         return self._leading_jet_array(data, "Jet/Jet.Phi")
 
-    def delta_r(self, data: ak.Array) -> np.ndarray:
-        etas = self.leading_jet_eta(data)
-        phis = self.leading_jet_phi(data)
-        pts = self.leading_jet_pt(data)
-
+    def delta_r(self, etas: np.ndarray, phis: np.ndarray, pts: np.ndarray) -> np.ndarray:
         n_events, _ = etas.shape
         n_pairs = self.n_jets * (self.n_jets - 1) // 2
 
@@ -79,62 +79,40 @@ class FeatureExtractor:
         dphi = np.where(dphi < -np.pi, dphi + 2 * np.pi, dphi)
         return dphi
 
-    def combined_invariant_mass(self, data: ak.Array) -> np.ndarray:
-        pt = self.leading_jet_pt(data)
-        eta = self.leading_jet_eta(data)
-        phi = self.leading_jet_phi(data)
-
-        px = pt * np.cos(phi)
-        py = pt * np.sin(phi)
-        pz = pt * np.sinh(eta)
-        E = pt * np.cosh(eta)
-
-        px_total = ak.sum(px, axis=1)
-        py_total = ak.sum(py, axis=1)
-        pz_total = ak.sum(pz, axis=1)
-        E_total = ak.sum(E, axis=1)
+    def combined_invariant_mass(self, px: np.ndarray, py: np.ndarray, pz: np.ndarray, E: np.ndarray) -> np.ndarray:
+        px_total = np.sum(px, axis=1)
+        py_total = np.sum(py, axis=1)
+        pz_total = np.sum(pz, axis=1)
+        E_total = np.sum(E, axis=1)
 
         mass = np.sqrt(E_total**2 - px_total**2 - py_total**2 - pz_total**2)
-        return ak.to_numpy(mass)
+        return mass
 
-    def n_jet_invariant_mass(self, data: ak.Array, k: int) -> np.ndarray:
-        pt = self.leading_jet_pt(data)
-        eta = self.leading_jet_eta(data)
-        phi = self.leading_jet_phi(data)
+    def n_jet_invariant_mass(self, px: np.ndarray, py: np.ndarray, pz: np.ndarray, E: np.ndarray, k: int) -> np.ndarray:
+        combination_indices = np.array(list(combinations(range(self.n_jets), k)))
 
-        masses = []
-        for event_pt, event_eta, event_phi in zip(pt, eta, phi):
-            event_masses = []
-            for indices in combinations(range(self.n_jets), k):
-                if any(event_pt[i] == 0 for i in indices):
-                    mass = 0
-                else:
-                    E = sum(event_pt[idx] * np.cosh(event_eta[idx]) for idx in indices)
-                    px = sum(event_pt[idx] * np.cos(event_phi[idx]) for idx in indices)
-                    py = sum(event_pt[idx] * np.sin(event_phi[idx]) for idx in indices)
-                    pz = sum(event_pt[idx] * np.sinh(event_eta[idx]) for idx in indices)
-                    mass = np.nan_to_num(np.sqrt(E**2 - px**2 - py**2 - pz**2))
-                event_masses.append(mass)
-            masses.append(sorted(event_masses, reverse=True))
+        raw_masses = np.sqrt(
+            E[:, combination_indices].sum(axis=-1) ** 2 -
+            px[:, combination_indices].sum(axis=-1) ** 2 -
+            py[:, combination_indices].sum(axis=-1) ** 2 -
+            pz[:, combination_indices].sum(axis=-1) ** 2
+        )
 
-        return np.array(masses)
+        masses = np.nan_to_num(raw_masses)
+        sorted_masses = -np.sort(-masses, axis=-1)
 
-    def n_jet_vector_sum_pt(self, data: ak.Array, k: int) -> np.ndarray:
-        pts = self.leading_jet_pt(data)
-        phis = self.leading_jet_phi(data)
-        vector_sum_pts = []
-        for event_pts, event_phis in zip(pts, phis):
-            vector_sums = []
-            for indices in combinations(range(self.n_jets), k):
-                if any(event_pts[i] == 0 for i in indices):
-                    vector_sum_pt = 0
-                else:
-                    px = sum(event_pts[idx] * np.cos(event_phis[idx]) for idx in indices)
-                    py = sum(event_pts[idx] * np.sin(event_phis[idx]) for idx in indices)
-                    vector_sum_pt = np.sqrt(px**2 + py**2)
-                vector_sums.append(vector_sum_pt)
-            vector_sum_pts.append(sorted(vector_sums, reverse=True))
-        return np.array(vector_sum_pts)
+        return sorted_masses
+
+    def n_jet_vector_sum_pt(self, px: ak.Array, py: ak.Array, k: int) -> np.ndarray:
+        combination_indices = np.array(list(combinations(range(self.n_jets), k)))
+
+        vector_sum_pts = np.sqrt(
+            px[:, combination_indices].sum(axis=-1) ** 2 +
+            py[:, combination_indices].sum(axis=-1) ** 2
+        )
+        sorted_vector_sum_pts = -np.sort(-vector_sum_pts, axis=-1)
+
+        return sorted_vector_sum_pts
 
     def flatten_features(self, features: dict[str, np.ndarray]) -> np.ndarray:
         flat_features = {}
@@ -150,18 +128,33 @@ class FeatureExtractor:
         return flat_features
 
     def compute_all(self, data: ak.Array) -> dict[str, np.ndarray]:
+        jet_pt = self.leading_jet_pt(data)
+        jet_eta = self.leading_jet_eta(data)
+        jet_phi = self.leading_jet_phi(data)
+
+        jet_px = jet_pt * np.cos(jet_phi)
+        jet_py = jet_pt * np.sin(jet_phi)
+        jet_pz = jet_pt * np.sinh(jet_eta)
+        jet_E = jet_pt * np.cosh(jet_eta)
+
         features = {
             "jet_multiplicity": self.jet_multiplicity(data),
-            "leading_jet_pt": self.leading_jet_pt(data),
-            "leading_jet_eta": self.leading_jet_eta(data),
-            "leading_jet_phi": self.leading_jet_phi(data),
-            "delta_r": self.delta_r(data),
-            "combined_invariant_mass": self.combined_invariant_mass(data),
+            "leading_jet_pt": jet_pt,
+            "leading_jet_eta": jet_eta,
+            "leading_jet_phi": jet_phi,
+            "delta_r": self.delta_r(jet_eta, jet_phi, jet_pt),
+            "combined_invariant_mass": self.combined_invariant_mass(
+                jet_px, jet_py, jet_pz, jet_E
+            ),
         }
 
         for k in [2, 3]:
-            features[f"{k}jet_invariant_mass"] = self.n_jet_invariant_mass(data, k)
-            features[f"{k}jet_vector_sum_pt"] = self.n_jet_vector_sum_pt(data, k)
+            features[f"{k}jet_invariant_mass"] = self.n_jet_invariant_mass(
+                jet_px, jet_py, jet_pz, jet_E, k
+            )
+            features[f"{k}jet_vector_sum_pt"] = self.n_jet_vector_sum_pt(
+                jet_px, jet_py, k
+            )
 
         # Compute combined features
         mnj = features["combined_invariant_mass"]
