@@ -53,9 +53,6 @@ class DataLoader:
         if key.startswith("SIG") and mass_cut is not None:
             arr = self.lower_cut_suu_mass(arr, mass_cut)
 
-        # Filter out events with no jets in the final state
-        arr = arr[arr.Jet != 0]
-
         return key, arr
 
     def load_data(self, mass_cut: float = None) -> dict[str, ak.Array]:
@@ -63,10 +60,7 @@ class DataLoader:
 
         # Load the datasets in parallel
         load_dataset = functools.partial(self._load_dataset, mass_cut=mass_cut)
-        datasets = thread_map(load_dataset, DATA_KEYS, max_workers=32, desc="Loading data")
-
-        # Drop empty datasets
-        datasets = list(filter(lambda pair: len(pair[1]) != 0, datasets))
+        datasets = thread_map(load_dataset, DATA_KEYS, max_workers=64, desc="Loading data")
 
         self.datasets = dict(datasets)
 
