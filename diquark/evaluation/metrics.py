@@ -226,6 +226,10 @@ def calculate_counts_for_score_cuts(y_true, y_pred, mnj, truth, cross_sections, 
         cumulative_weights = np.cumsum(sorted_weights)
         total_weight = cumulative_weights[-1]
 
+    keys = np.unique(truth)
+    truth_masks = { key: truth == key for key in keys }
+    truth_counts = { key: truth_masks[key].sum() for key in keys }
+
     for cut in cuts:
         if use_real_event_percentiles:
             threshold = sorted_pred[np.searchsorted(cumulative_weights / total_weight, cut)]
@@ -233,12 +237,12 @@ def calculate_counts_for_score_cuts(y_true, y_pred, mnj, truth, cross_sections, 
             threshold = np.quantile(y_pred, cut)
 
         scores = {}
-        for key in np.unique(truth):
-            mask = (truth == key) & (y_pred > threshold)
+        for key in keys:
+            mask = truth_masks[key] & (y_pred > threshold)
             scores[key] = mnj[mask]
 
         counts = {
-            k: len(v) * total_luminosity * cross_sections[k] / np.sum(truth == k)
+            k: len(v) * total_luminosity * cross_sections[k] / truth_counts[k]
             for k, v in scores.items()
         }
         results[cut] = counts
