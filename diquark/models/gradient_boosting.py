@@ -21,7 +21,8 @@ class GradientBoostingModel(BaseModel):
             subsample=self.subsample,
             colsample_bytree=self.colsample_bytree,
             random_state=self.random_state,
-            tree_method="hist"
+            tree_method="hist",
+            early_stopping_rounds=2
         )
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray):

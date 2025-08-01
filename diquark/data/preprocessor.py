@@ -13,7 +13,7 @@ class Preprocessor:
         self.test_size = config.get('test_size', 0.2)
         self.random_state = config.get('random_state', 42)
         self.oversample_signal = config.get('oversample_signal', True)
-        
+
         if self.scaler_type == 'standard':
             self.scaler = StandardScaler()
         elif self.scaler_type == 'minmax':
@@ -28,7 +28,7 @@ class Preprocessor:
             df = pd.DataFrame(feature_dict)
             df['Truth'] = key
             df_list.append(df)
-        
+
         df = pd.concat(df_list, ignore_index=True)
         df['target'] = df['Truth'].apply(lambda x: 1 if 'SIG' in x else 0)
         return df
@@ -63,7 +63,7 @@ class Preprocessor:
 
         df_sig_oversampled = df_sig.sample(n=len(df_bkg), replace=True, random_state=self.random_state)
         df_oversampled = pd.concat([df_sig_oversampled, df_bkg])
-        
+
         return df_oversampled.sample(frac=1, random_state=self.random_state)  # Shuffle
 
     def prepare_data(self, features: Dict[str, Dict[str, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, pd.DataFrame, pd.DataFrame]:
@@ -75,7 +75,7 @@ class Preprocessor:
     def prepare_fold_data(self, X_train, X_test, y_train, y_test, df_train, df_test):
         if self.oversample_signal:
             df_train = self._oversample_signal(df_train)
-            X_train = df_train.drop(["target", "Truth", "combined_invariant_mass"], axis=1).values
+            X_train = df_train.drop(["target", "Truth"], axis=1).values
             y_train = df_train["target"].values
 
         X_train_scaled = self.scale_features(X_train)
