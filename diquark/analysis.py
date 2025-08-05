@@ -80,7 +80,7 @@ class Analysis:
 
     def run_cross_validation(self, features):
         df = self.preprocessor.create_dataframe(features)
-        X = df.drop(["target", "combined_invariant_mass", "Truth"], axis=1)
+        X = df.drop(["target", "Truth"], axis=1)
         y = df["target"]
 
         skf = StratifiedKFold(n_splits=self.n_folds, shuffle=True, random_state=42)
@@ -126,8 +126,6 @@ class Analysis:
 
         assert len(features[0].keys()) == len(self.feature_extractor.feature_names), \
             f"Number of extracted features ({len(features[0].keys())}) doesn't match number of feature names defined on feature extractor object ({len(self.feature_extractor.feature_names)})"
-
-        self.feature_extractor.feature_names.remove("combined_invariant_mass")
 
         return dict(zip(data.keys(), features))
 

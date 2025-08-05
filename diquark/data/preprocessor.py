@@ -75,7 +75,7 @@ class Preprocessor:
     def prepare_fold_data(self, X_train, X_test, y_train, y_test, df_train, df_test):
         if self.oversample_signal:
             df_train = self._oversample_signal(df_train)
-            X_train = df_train.drop(["target", "combined_invariant_mass", "Truth"], axis=1).values
+            X_train = df_train.drop(["target", "Truth"], axis=1).values
             y_train = df_train["target"].values
 
         X_train_scaled = self.scale_features(X_train)
