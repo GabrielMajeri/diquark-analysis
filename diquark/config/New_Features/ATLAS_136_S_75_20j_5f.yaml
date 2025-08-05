@@ -1,9 +1,8 @@
 version: 1.0
 data:
-  n_jets: 10
-  mass_cut: 7500  # Mass cut in GeV
-  path_dict: 'PATH_DICT_ATLAS_136_75'
-  cross_section_dict: 'CROSS_SECTION_ATLAS_136_75'
+  mass_cut: 7000  # Mass cut in GeV
+  path_dict: 'PATH_DICT_ATLAS_136_70'
+  cross_section_dict: 'CROSS_SECTION_ATLAS_136_70'
   total_luminosity: 3000
 
 cross_validation:
@@ -11,7 +10,8 @@ cross_validation:
   n_folds: 5
 
 feature_extraction:
-  n_jets: 10
+  n_jets: 20
+  suu_mass: 7500
 
 preprocessing:
   scaler: 'minmax'  # Options: 'standard', 'minmax'
@@ -62,7 +62,7 @@ visualization:
     - sig_bkg_metrics
 
 results:
-  directory: 'results_test_10_jets_5_fold' #
+  directory: 'results_test_136_75' #
   save_predictions: true
   save_feature_importances: true
 

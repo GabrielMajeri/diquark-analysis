@@ -3,8 +3,9 @@ import numpy as np
 import awkward as ak
 
 class FeatureExtractor:
-    def __init__(self, n_jets: int):
+    def __init__(self, n_jets: int, suu_mass: float):
         self.n_jets = n_jets
+        self.suu_mass = suu_mass
         self.feature_names = self._generate_feature_names()
 
     def _flattened_feature_names(self, name: str) -> list[str]:
@@ -224,7 +225,7 @@ class FeatureExtractor:
         m_chi = 2000
         sigma_chi = 2/100 * m_chi
 
-        m_S = 8000
+        m_S = self.suu_mass
         sigma_S = 100
 
         chi2_first_component = ((m2j - m_W) / sigma_W) ** 2

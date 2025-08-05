@@ -2,7 +2,6 @@ import functools
 
 import uproot
 import awkward as ak
-import numpy as np
 
 from tqdm.contrib.concurrent import thread_map
 
@@ -10,7 +9,7 @@ from diquark.config.constants import DATA_KEYS
 
 class DataLoader:
 
-    def __init__(self, path_dict: dict[str, str], n_jets=6, index_start=0, index_stop=None):
+    def __init__(self, path_dict: dict[str, str], index_start=0, index_stop=None):
         self.default_branches = [
             "Jet",
             "Jet/Jet.PT",
@@ -22,7 +21,6 @@ class DataLoader:
             "Particle/Particle.Mass",
         ]
         self.path_dict = path_dict
-        self.n_jets = n_jets
         self.index_start = index_start
         self.index_stop = index_stop
 
@@ -66,12 +64,3 @@ class DataLoader:
 
         return self.datasets
 
-
-def get_jet_features(arr: ak.Array, n_jets) -> dict[str, np.ndarray]:
-    """Extract basic jet features from the awkward array."""
-    return {
-        "pt": ak.to_numpy(ak.pad_none(arr["Jet/Jet.PT"], n_jets, clip=True)),
-        "eta": ak.to_numpy(ak.pad_none(arr["Jet/Jet.Eta"], n_jets, clip=True)),
-        "phi": ak.to_numpy(ak.pad_none(arr["Jet/Jet.Phi"], n_jets, clip=True)),
-        "btag": ak.to_numpy(ak.pad_none(arr["Jet/Jet.BTag"], n_jets, clip=True)),
-    }

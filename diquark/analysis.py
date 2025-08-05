@@ -34,11 +34,13 @@ class Analysis:
         self.n_folds = self.config.get('cross_validation.n_folds', 1)
 
         self.data_loader = DataLoader(self.path_dict,
-                                      n_jets=self.config.get('data.n_jets', 6),
                                       index_start=self.config.get('data.index_start', 0),
                                       index_stop=self.config.get('data.index_stop', None))
 
-        self.feature_extractor = FeatureExtractor(n_jets=self.config.get('feature_extraction.n_jets', 6))
+        self.feature_extractor = FeatureExtractor(
+            n_jets=self.config.get('feature_extraction.n_jets', 6),
+            suu_mass=self.config.get('feature_extraction.suu_mass', 7500)
+        )
         self.preprocessor = Preprocessor(self.config.get('preprocessing', {}))
 
         self.models = {
@@ -78,7 +80,7 @@ class Analysis:
 
     def run_cross_validation(self, features):
         df = self.preprocessor.create_dataframe(features)
-        X = df.drop(["target", "Truth"], axis=1)
+        X = df.drop(["target", "combined_invariant_mass", "Truth"], axis=1)
         y = df["target"]
 
         skf = StratifiedKFold(n_splits=self.n_folds, shuffle=True, random_state=42)
@@ -124,6 +126,8 @@ class Analysis:
 
         assert len(features[0].keys()) == len(self.feature_extractor.feature_names), \
             f"Number of extracted features ({len(features[0].keys())}) doesn't match number of feature names defined on feature extractor object ({len(self.feature_extractor.feature_names)})"
+
+        self.feature_extractor.feature_names.remove("combined_invariant_mass")
 
         return dict(zip(data.keys(), features))
 
