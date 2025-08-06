@@ -1,8 +1,8 @@
 version: 1.0
 data:
   mass_cut: 6500  # Mass cut in GeV
-  path_dict: 'PATH_DICT_ATLAS_136_65'
-  cross_section_dict: 'CROSS_SECTION_ATLAS_136_65'
+  path_dict: 'PATH_DICT_ATLAS_136_6500'
+  cross_section_dict: 'CROSS_SECTION_ATLAS_136_6500'
   total_luminosity: 3000
 
 cross_validation:
@@ -10,7 +10,7 @@ cross_validation:
   n_folds: 5
 
 feature_extraction:
-  n_jets: 20
+  n_jets: 32
   suu_mass: 7000
 
 preprocessing:
@@ -62,7 +62,7 @@ visualization:
     - sig_bkg_metrics
 
 results:
-  directory: 'results_test_136_75' #
+  directory: 'results_test_32jets_5fold_136_6500'
   save_predictions: true
   save_feature_importances: true
 

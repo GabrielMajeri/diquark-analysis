@@ -155,7 +155,7 @@ PATH_DICT_ATLAS_136_7750 = {
         for index, key in enumerate(DATA_KEYS)
         if key.startswith('BKG')
     },
-    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8250.root'
+    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8250_events.root'
 }
 
 ## m_{S_{uu}} = 8.0 TeV
@@ -167,7 +167,7 @@ PATH_DICT_ATLAS_136_8000 = {
         for index, key in enumerate(DATA_KEYS)
         if key.startswith('BKG')
     },
-    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8500.root'
+    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8500_events.root'
 }
 
 ## m_{S_{uu}} = 8.25 TeV
@@ -179,7 +179,7 @@ PATH_DICT_ATLAS_136_8250 = {
         for index, key in enumerate(DATA_KEYS)
         if key.startswith('BKG')
     },
-    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8750.root'
+    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8750_events.root'
 }
 
 ### Cross-sections in femtobarns (fb)
