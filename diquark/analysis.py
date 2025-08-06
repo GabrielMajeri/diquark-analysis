@@ -1,5 +1,6 @@
 from tqdm.contrib.concurrent import thread_map
 import argparse
+import random
 
 import numpy as np
 import pandas as pd
@@ -247,6 +248,9 @@ class Analysis:
         return f"{mean_formatted} ± {std_formatted}"
 
 if __name__ == "__main__":
+    random.seed(17)
+    np.random.seed(17)
+
     parser = argparse.ArgumentParser(description="Run diquark analysis with optional custom config file.")
     parser.add_argument("-c", "--config", type=str, default='diquark/config/default_settings.yaml',
                         help="Path to the configuration file (default: diquark/config/default_settings.yaml)")
