@@ -5,7 +5,7 @@ import awkward as ak
 
 from tqdm.contrib.concurrent import thread_map
 
-from diquark.config.constants import DATA_KEYS
+from diquark.config.constants import DATA_KEYS, BKG_4JET_DATA_KEYS, BKG_MULTIJET_DATA_KEYS
 
 class DataLoader:
 
@@ -58,7 +58,8 @@ class DataLoader:
 
         # Load the datasets in parallel
         load_dataset = functools.partial(self._load_dataset, mass_cut=mass_cut)
-        datasets = thread_map(load_dataset, DATA_KEYS, max_workers=64, desc="Loading data")
+        data_keys = DATA_KEYS + BKG_4JET_DATA_KEYS + BKG_MULTIJET_DATA_KEYS
+        datasets = thread_map(load_dataset, data_keys, max_workers=64, desc="Loading data")
 
         self.datasets = dict(datasets)
 

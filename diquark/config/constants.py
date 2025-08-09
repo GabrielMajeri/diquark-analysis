@@ -39,7 +39,21 @@ DATA_KEYS = [
     'SIG:Suu'
 ]
 
+BKG_4JET_DATA_KEYS = [
+    'BKG:qq_tq',
+    'BKG:ffbar_tqbar',
+]
+
+BKG_MULTIJET_DATA_KEYS = [
+    'BKG:pp_ttbarbb',
+    'BKG:pp_ttbarj',
+    'BKG:pp_wzz',
+]
+
 DATA_KEYS_CODES = list(range(1, 15)) + list(range(18, 33))
+
+BKG_4JET_DATA_KEYS_CODES = [39, 40]
+BKG_MULTIJET_DATA_KEYS_CODES = [36, 37, 43]
 
 COLOR_DICT = {
     'BKG:gg_bbbar': '#21f0b6',
@@ -83,10 +97,12 @@ COLOR_DICT = {
 BACKGROUNDS_DIR = Path('/data/iduminic/diquark-analysis/full-hadro/bkg/')
 SIGNAL_DIR = Path('/data/iduminic/diquark-analysis/full-hadro/sgn/')
 
+BACKGROUNDS_4JETS_DIR = BACKGROUNDS_DIR / '4jets/136'
 BACKGROUNDS_6JETS_DIR = BACKGROUNDS_DIR / '6jets/136/100k'
-SIGNAL_ATLAS_136_DIR = SIGNAL_DIR / 'chi-chi/wb-wb/136/yuu-020/m_chi-2000/'
+BACKGROUNDS_MULTIJETS_DIR = BACKGROUNDS_DIR / 'multijets'
+SIGNAL_ATLAS_136_DIR = SIGNAL_DIR / 'chi-chi/ht-ht/wwt-wwt/136_8000_events.root/'
 
-## m_{S_{uu}} = 6.5 TeV
+## m_{min} = 6.5 TeV, m_{S_{uu}} = 7.0 TeV
 ATLAS_136_6500_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_6500'
 
 PATH_DICT_ATLAS_136_6500 = {
@@ -98,7 +114,7 @@ PATH_DICT_ATLAS_136_6500 = {
     'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_7000_events.root'
 }
 
-## m_{S_{uu}} = 6.75 TeV
+## m_{min} = 6.75 TeV, m_{S_{uu}} = 7.25 TeV
 ATLAS_136_6750_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_6750'
 
 PATH_DICT_ATLAS_136_6750 = {
@@ -110,7 +126,7 @@ PATH_DICT_ATLAS_136_6750 = {
     'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_7250_events.root'
 }
 
-## m_{S_{uu}} = 7.0 TeV
+## m_{min} = 7.0 TeV, m_{S_{uu}} = 7.5 TeV
 ATLAS_136_7000_BKG_DIR = BACKGROUNDS_6JETS_DIR  / '136_7000'
 
 PATH_DICT_ATLAS_136_7000 = {
@@ -122,7 +138,7 @@ PATH_DICT_ATLAS_136_7000 = {
     'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_7500_events.root'
 }
 
-## m_{S_{uu}} = 7.25 TeV
+## m_{min} = 7.25 TeV, m_{S_{uu}} = 7.75 TeV
 ATLAS_136_7250_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_7250'
 
 PATH_DICT_ATLAS_136_7250 = {
@@ -134,8 +150,10 @@ PATH_DICT_ATLAS_136_7250 = {
     'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_7750_events.root'
 }
 
-## m_{S_{uu}} = 7.5 TeV
+## m_{min} = 7.5 TeV, m_{S_{uu}} = 8.0 TeV
 ATLAS_136_7500_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_7500'
+ATLAS_136_7500_BKG_4JET_DIR = BACKGROUNDS_4JETS_DIR / '136_7500'
+ATLAS_136_7500_BKG_MULTIJET_DIR = BACKGROUNDS_MULTIJETS_DIR / '136_7500'
 
 PATH_DICT_ATLAS_136_7500 = {
     **{
@@ -143,10 +161,20 @@ PATH_DICT_ATLAS_136_7500 = {
         for index, key in enumerate(DATA_KEYS)
         if key.startswith('BKG')
     },
-    'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8000_events.root'
+    **{
+        key: ATLAS_136_7500_BKG_4JET_DIR / f'{BKG_4JET_DATA_KEYS_CODES[index]:02d}_{key.split(':')[-1]}.cmnd_13600_7500.root'
+        for index, key in enumerate(BKG_4JET_DATA_KEYS)
+        if key.startswith('BKG')
+    },
+    **{
+        key: ATLAS_136_7500_BKG_MULTIJET_DIR / f'{BKG_MULTIJET_DATA_KEYS_CODES[index]:02d}_{key.split(':')[-1]}.cmnd_13600_7500.root'
+        for index, key in enumerate(BKG_MULTIJET_DATA_KEYS)
+        if key.startswith('BKG')
+    },
+    'SIG:Suu': SIGNAL_ATLAS_136_DIR / 'tag_1_delphes_events.root'
 }
 
-## m_{S_{uu}} = 7.75 TeV
+## m_{min} = 7.75 TeV, m_{S_{uu}} = 8.25 TeV
 ATLAS_136_7750_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_7750'
 
 PATH_DICT_ATLAS_136_7750 = {
@@ -158,7 +186,7 @@ PATH_DICT_ATLAS_136_7750 = {
     'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8250_events.root'
 }
 
-## m_{S_{uu}} = 8.0 TeV
+## m_{min} = 8.0 TeV, m_{S_{uu}} = 8.5 TeV
 ATLAS_136_8000_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_8000'
 
 PATH_DICT_ATLAS_136_8000 = {
@@ -170,7 +198,7 @@ PATH_DICT_ATLAS_136_8000 = {
     'SIG:Suu': SIGNAL_ATLAS_136_DIR / '136_8500_events.root'
 }
 
-## m_{S_{uu}} = 8.25 TeV
+## m_{min} = 8.25 TeV, m_{S_{uu}} = 9.75 TeV
 ATLAS_136_8250_BKG_DIR = BACKGROUNDS_6JETS_DIR / '136_8250'
 
 PATH_DICT_ATLAS_136_8250 = {
@@ -361,7 +389,15 @@ CROSS_SECTION_ATLAS_136_7500 = {
     'BKG:ff_gmZgmZ_bkg': 8.316E-06,
     'BKG:gg_ttbar_bkg_hadronic': 3.372E-05,
     'BKG:qq_ttbar_bkg_hadronic': 3.671E-05,
-    'SIG:Suu': 2.406E-03,
+    # 4-jet
+    'BKG:qq_tq': 1.685E-02,
+    'BKG:ffbar_tqbar': 1.024E-06,
+    # Multijet
+    'BKG:pp_ttbarbb': 8.919E-04,
+    'BKG:pp_ttbarj': 3.373E+00,
+    'BKG:pp_wzz': 1.892E-06,
+    # Signal
+    'SIG:Suu': 6.293E-06,
 }
 
 CROSS_SECTION_ATLAS_136_7750 = {
