@@ -40,7 +40,8 @@ class Analysis:
 
         self.feature_extractor = FeatureExtractor(
             n_jets=self.config.get('feature_extraction.n_jets', 6),
-            suu_mass=self.config.get('feature_extraction.suu_mass', 7500)
+            chi_mass=self.config.get('feature_extraction.chi_mass', 2000),
+            suu_mass=self.config.get('feature_extraction.suu_mass', 7500),
         )
         self.preprocessor = Preprocessor(self.config.get('preprocessing', {}))
 

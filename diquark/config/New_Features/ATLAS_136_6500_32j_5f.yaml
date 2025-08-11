@@ -11,6 +11,7 @@ cross_validation:
 
 feature_extraction:
   n_jets: 32
+  chi_mass: 1500
   suu_mass: 7000
 
 preprocessing:
@@ -20,13 +21,6 @@ preprocessing:
   oversample_signal: true
 
 models:
-  # neural_network:
-  #   epochs: 5
-  #   batch_size: 128
-  #   learning_rate: 0.01
-  #   layer_sizes: [64, 32, 32]
-  #   dropout_rates: [0.2, 0.1]
-
   random_forest:
     n_estimators: 200
     max_depth: null
@@ -52,7 +46,7 @@ evaluation:
     - average_precision
   evaluation:
     thresholds: [0.2, 0.5, 0.8, 0.90, 0.925, 0.95, 0.96, 0.97, 0.98, 0.99]
-    use_real_event_percentiles: true  # Set to false to use raw event percentiles and true to use cross-section weighted event percentiles
+    use_real_event_percentiles: false
 
 visualization:
   plots:
@@ -62,7 +56,7 @@ visualization:
     - sig_bkg_metrics
 
 results:
-  directory: 'results_test_32jets_5fold_136_6500'
+  directory: 'results/yuu-020/m_chi-1500/136_6500'
   save_predictions: true
   save_feature_importances: true
 
